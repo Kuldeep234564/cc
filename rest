@@ -1,0 +1,44 @@
+install flask
+from flask import Flask, jsonify, request
+
+app = Flask(__name__)
+
+# Sample data
+data = [
+    {'id': 1, 'name': 'Item 1'},
+    {'id': 2, 'name': 'Item 2'},
+    {'id': 3, 'name': 'Item 3'},
+    {'id': 4, 'name': 'Item 4'},
+    {'id': 5, 'name': 'Item 5'},
+    
+
+]
+
+# Endpoint to get all items
+@app.route('/items', methods=['GET'])
+def get_items():
+    return jsonify({'items': data})
+
+# Endpoint to get a single item by ID
+@app.route('/items/<int:item_id>', methods=['GET'])
+def get_item(item_id):
+    item = next((item for item in data if item['id'] == item_id), None)
+    if item:
+        return jsonify({'item': item})
+    else:
+        return jsonify({'message': 'Item not found'}), 404
+
+# Endpoint to add a new item
+@app.route('/items', methods=['POST'])
+def add_item():
+    if not request.json or 'name' not in request.json:
+        return jsonify({'message': 'Invalid request'}), 400
+
+    new_item = {'id': len(data) + 1, 'name': request.json['name']}
+    data.append(new_item)
+    
+    return jsonify({'message': 'Item added successfully', 'item': new_item}), 201
+
+# Run the application
+if __name__ == '__main__':
+    app.run(debug=True)
